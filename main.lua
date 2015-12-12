@@ -48,6 +48,8 @@ local function Lazy(f)
 end
 
 State = Lazy(function(path) return require('states.' .. path) end)
+Util = Lazy(function(path) return require('util.' .. path) end)
+Entity = Lazy(function(path) return require('entities.' .. path) end)
 Image = Lazy(function(path)
 	local i = love.graphics.newImage('img/'..path..'.png')
 	i:setFilter('nearest', 'nearest')
@@ -55,7 +57,7 @@ Image = Lazy(function(path)
 end)
 Font  = Lazy(function(arg)
 	if tonumber(arg) then
-		return love.graphics.newFont('font/slkscr.ttf', arg)
+		return love.graphics.newFont('font/Turtles.ttf', arg)
 	end
 	return Lazy(function(size) return love.graphics.newFont('font/'..arg..'.ttf', size) end)
 end)
@@ -68,7 +70,9 @@ function love.load()
 	WIDTH, HEIGHT = love.window.getWidth(), love.window.getHeight()
 
 	GS.registerEvents()
-	GS.switch(State.splash, State.menu)
+	--GS.switch(State.splash, State.menu)
+	--GS.switch(State.menu)
+	GS.switch(State.game)
 end
 
 function love.quit()
