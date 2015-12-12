@@ -29,7 +29,7 @@ local haze = {sx = 0, sy = 1}
 
 -- SOUND
 local woosh
-local woosh_length = 1.3
+local woosh_length = 1
 
 local tick = {}
 for k = 1,10 do
@@ -88,7 +88,7 @@ function st:enter(_, to)
 		Timer.tween(.75, haze, {
 			sx = -2* love.graphics.getWidth() / Image.haze:getWidth()
 		})
-		wait(woosh_length - 1)
+		wait(woosh_length - .7)
 
 		GS.transition(to, 1)
 	end)
