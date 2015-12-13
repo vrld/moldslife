@@ -3,14 +3,38 @@ GS     = require 'hump.gamestate'
 vector = require 'hump.vector'
 class  = require 'hump.class'
 Signal = require 'hump.signal'
+shine = require 'shine'
 require 'slam'
 
-function Timer.script(f)
-	local co = coroutine.wrap(f)
-	co(function(t)
-		Timer.after(t, co)
-		coroutine.yield()
-	end)
+function table.findmax(t, from, to)
+	if not to then
+		from, to = 1, from
+	end
+	if not to then to = #t end
+
+	local max, idx_max = t[from], from
+	for i = from+1,to do
+		if t[i] > max then
+			max, idx_max = t[i], i
+		end
+	end
+	return idx_max, max
+end
+
+function table.sum(t)
+	local s = 0
+	for _,v in ipairs(t) do
+		s = s + v
+	end
+	return s
+end
+
+function table.prod(t)
+	local p = 0
+	for _,v in ipairs(t) do
+		p = p * v
+	end
+	return p
 end
 
 function GS.transition(to, duration)
@@ -50,6 +74,7 @@ end
 State = Lazy(function(path) return require('states.' .. path) end)
 Util = Lazy(function(path) return require('util.' .. path) end)
 Entity = Lazy(function(path) return require('entities.' .. path) end)
+Level = Lazy(function(path) return Util.loadLevel(path) end)
 Image = Lazy(function(path)
 	local i = love.graphics.newImage('img/'..path..'.png')
 	i:setFilter('nearest', 'nearest')
@@ -71,8 +96,15 @@ function love.load()
 
 	GS.registerEvents()
 	--GS.switch(State.splash, State.menu)
-	--GS.switch(State.menu)
-	GS.switch(State.game)
+	GS.switch(State.menu)
+	--GS.switch(State.game, Level.level01)
+	--GS.switch(State.game, Level.level02)
+	--GS.switch(State.game, Level.level03)
+	--GS.switch(State.game, Level.level04)
+
+	Timer.every(0.25, function()
+		love.window.setTitle(love.timer.getFPS())
+	end)
 end
 
 function love.quit()

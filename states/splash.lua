@@ -2,8 +2,8 @@ local st = {}
 
 local base = (...):gsub('%.', '/') .. '/'
 local duration_show_splash = .5 -- in seconds
-local color_fg     = {220,214,204}
-local color_bg     = {30,28,25}
+local color_fg     = {120,240,230}
+local color_bg     = {25,30,28}
 local cell_width   = 25
 local cell_height  = 25
 local cell_spacing = 5
@@ -48,6 +48,15 @@ end
 
 function st:init()
 	Image.haze:setFilter('linear', 'linear')
+	self.post = shine.vignette():chain(shine.godsray())
+	self.post.radius = .6
+	self.post.softness = .7
+	self.post.opacity = .8
+	self.post.exposure = .2
+	self.post.decay = .92
+	self.post.density = .3
+	self.post.positionx = .3
+	self.post.positiony = .4
 end
 
 function st:enter(_, to)
@@ -69,6 +78,14 @@ function st:enter(_, to)
 		sequence[i], sequence[k] = sequence[k], sequence[i]
 		sequence[i].dt = 1 / #sequence
 	end
+
+
+	local p = {x=.3,y=.4}
+	Timer.tween(duration_show_splash + 1, p, {x=.7,y=.6}, 'in-out-quad')
+	Timer.during(duration_show_splash + 1, function()
+		self.post.positionx = p.x
+		self.post.positiony = p.y
+	end)
 
 	Timer.script(function(wait)
 		for i,s in ipairs(sequence) do
@@ -97,18 +114,20 @@ function st:enter(_, to)
 end
 
 function st:draw()
-	love.graphics.setColor(255,255,255)
-	for i = 1,#board do
-		local y = offset.y + (i-1) * (cell_height + cell_spacing)
-		for k = 1,#board[1] do
-			if board[i][k].a ~= 0 then
-				color_fg[4] = board[i][k].a
-				love.graphics.setColor(color_fg)
-				local x = offset.x + (k-1) * (cell_width + cell_spacing)
-				love.graphics.rectangle('fill', x,y, cell_width, cell_height)
+	self.post:draw(function()
+		love.graphics.setColor(255,255,255)
+		for i = 1,#board do
+			local y = offset.y + (i-1) * (cell_height + cell_spacing)
+			for k = 1,#board[1] do
+				if board[i][k].a ~= 0 then
+					color_fg[4] = board[i][k].a
+					love.graphics.setColor(color_fg)
+					local x = offset.x + (k-1) * (cell_width + cell_spacing)
+					love.graphics.rectangle('fill', x,y, cell_width, cell_height)
+				end
 			end
 		end
-	end
+	end)
 
 	love.graphics.setColor(color_bg)
 	love.graphics.draw(Image.haze, love.graphics.getWidth(),0,0,
