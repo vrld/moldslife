@@ -103,9 +103,11 @@ function love.load()
 	end
 	selectSound = love.audio.newSource(sd)
 
+	Sound.stream.letscallitmusic:setVolume(.4)
+
 	GS.registerEvents()
-	--GS.switch(State.splash, State.menu)
-	GS.switch(State.menu)
+	GS.switch(State.splash, State.menu)
+	--GS.switch(State.menu)
 	--GS.switch(State.game, Level.level01)
 	--GS.switch(State.game, Level.level02)
 	--GS.switch(State.game, Level.level03)
@@ -116,6 +118,25 @@ function love.load()
 	--	love.window.setTitle(love.timer.getFPS())
 	--end)
 
+	gui.core.style.gradient:set(255,255)
+	local instance
+	chkMusic = {text = "Music?", checked = true, pos = {WIDTH-100, HEIGHT-30}, size={20,20}}
+	Timer.after(5, function()
+		Signal.emit("play-music", true)
+		Timer.every(30, function()
+			if chkMusic.checked and instance:isStopped() then
+				Signal.emit("play-music", true)
+			end
+		end)
+	end)
+
+	Signal.register("play-music", function(play)
+		if play then
+			instance = Sound.stream.letscallitmusic:play()
+		else
+			Sound.stream.letscallitmusic:stop()
+		end
+	end)
 end
 
 function love.quit()
@@ -123,4 +144,9 @@ end
 
 function love.update(dt)
 	Timer.update(dt)
+
+	love.graphics.setFont(Font[15])
+	if gui.Checkbox(chkMusic) then
+		Signal.emit("play-music", chkMusic.checked)
+	end
 end

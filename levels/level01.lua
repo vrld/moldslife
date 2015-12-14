@@ -10,7 +10,7 @@ onLoad = function(self, timer)
 		color = {255,255,255,0}
 	}
 	timer.script(function(wait)
-		self.message = "The eye is my favourite part of a fish!"
+		self.message = "The eye is THE best part of the fish!"
 		wait(5)
 		self.message = "Go for it!"
 

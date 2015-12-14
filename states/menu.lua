@@ -30,8 +30,6 @@ function st:init()
 	}
 
 	gui.keyboard.disable()
-
-	gui.core.style.gradient:set(255,255)
 end
 
 function st:enter()
@@ -40,6 +38,7 @@ end
 
 local hot, hot_last
 function st:update()
+	love.graphics.setFont(Font[30])
 	gui.group{grow="down", pos = {WIDTH/2-150, HEIGHT/2+60}, size={300,40}, spacing=5, function()
 		if gui.Button{text = "Start"} then
 			GS.transition(State.game, 1, Level.level01)
@@ -69,7 +68,6 @@ function st:draw()
 		love.graphics.setColor(120,240,230)
 		love.graphics.setFont(Font[80])
 		love.graphics.printf("A mold's life", 0,HEIGHT/2-180,WIDTH, 'center')
-		love.graphics.setFont(Font[30])
 	end)
 	gui.core.draw()
 end

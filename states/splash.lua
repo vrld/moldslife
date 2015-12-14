@@ -60,6 +60,7 @@ function st:init()
 end
 
 function st:enter(_, to)
+	self.to = to
 	woosh = nil
 	sequence = {}
 	for i = 1,#board do
@@ -97,20 +98,28 @@ function st:enter(_, to)
 			local src = love.audio.newSource(tick[math.random(#tick)])
 			src:play()
 			wait(s.dt)
+			if self.ABANDONSHIP then return end
 		end
 
 		wait(duration_show_splash)
+		if self.ABANDONSHIP then return end
 		Sound.static.woosh:play()
 
 		Timer.tween(.75, haze, {
 			sx = -2* love.graphics.getWidth() / Image.haze:getWidth()
 		})
 		wait(woosh_length - .7)
+		if self.ABANDONSHIP then return end
 
 		GS.transition(to, 1)
 	end)
 
 	love.graphics.setBackgroundColor(color_bg)
+end
+
+function st:keypressed()
+	self.ABANDONSHIP = true
+	GS.switch(self.to)
 end
 
 function st:draw()

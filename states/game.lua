@@ -109,11 +109,11 @@ function st:enter(_, level)
 		self.timer.script(function(wait)
 			wait(0)
 			while true do
-				local cs = table.sum(self.level.control, #self.level.molds)
+				local cs = table.sum(self.level.control, 1, #self.level.molds)
 				mold:update()
 				self.level.map_img:refresh()
-				local s = .5 * (#mold / ms) + .5 * (self.level.control[i] / cs)
-				local w = .1 - s*s * .09
+				local s = (.7 * (#mold / ms) + .3 * (self.level.control[i] / cs))^2
+				local w = .05 * (1 - s) + .001 * s
 				wait(w)
 			end
 		end)
@@ -154,6 +154,10 @@ function st:draw()
 		love.graphics.setFont(Font[30])
 		love.graphics.printf(self.level.message, 0,HEIGHT-50,WIDTH, "center")
 	end)
+
+	if GS.current() == self then
+		gui.core.draw()
+	end
 end
 
 function st:update(dt)
