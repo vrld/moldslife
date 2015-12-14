@@ -3,7 +3,8 @@ GS     = require 'hump.gamestate'
 vector = require 'hump.vector'
 class  = require 'hump.class'
 Signal = require 'hump.signal'
-shine = require 'shine'
+shine  = require 'shine'
+gui    = require 'Quickie'
 require 'slam'
 
 function table.findmax(t, from, to)
@@ -37,7 +38,7 @@ function table.prod(t)
 	return p
 end
 
-function GS.transition(to, duration)
+function GS.transition(to, duration, ...)
 	duration = duration or 1
 
 	local fade_color, t = {0,0,0,0}, 0
@@ -53,10 +54,11 @@ function GS.transition(to, duration)
 	GS.switch = function() end
 	GS.transition = function() end
 
+	local args = {...}
 	Timer.script(function(wait)
 		Timer.tween(duration/2, fade_color, {[4] = 255}, 'linear')
 		wait(duration / 2)
-		switch(to)
+		switch(to, unpack(args))
 		Timer.tween(duration/2, fade_color, {[4] = 0}, 'linear')
 		wait(duration / 2)
 		GS.draw, GS.switch, GS.transition = draw, switch, transition
@@ -94,6 +96,13 @@ Sound = {
 function love.load()
 	WIDTH, HEIGHT = love.window.getWidth(), love.window.getHeight()
 
+	local l = math.floor(44100 * .01)
+	local sd = love.sound.newSoundData(l, 44100, 16, 1)
+	for i = 0,l-1 do
+		sd:setSample(i, (love.math.random()*2-1)*.05)
+	end
+	selectSound = love.audio.newSource(sd)
+
 	GS.registerEvents()
 	--GS.switch(State.splash, State.menu)
 	GS.switch(State.menu)
@@ -101,10 +110,12 @@ function love.load()
 	--GS.switch(State.game, Level.level02)
 	--GS.switch(State.game, Level.level03)
 	--GS.switch(State.game, Level.level04)
+	--GS.switch(State.game, Level.level05)
 
-	Timer.every(0.25, function()
-		love.window.setTitle(love.timer.getFPS())
-	end)
+	--Timer.every(0.25, function()
+	--	love.window.setTitle(love.timer.getFPS())
+	--end)
+
 end
 
 function love.quit()

@@ -11,7 +11,6 @@ end
 function st:enter(pre)
 	self.pre = pre
 	effect, self.pre.post = self.pre.post, effect
-	self.nextLevel = self.pre.level.nextLevel()
 end
 
 function st:leave()
@@ -23,25 +22,26 @@ function st:draw()
 
 	love.graphics.setColor(120,240,230)
 	love.graphics.setFont(Font[50])
-	love.graphics.printf("Another Day, Another Victory!", 0,HEIGHT/2-100,WIDTH, "center")
+	love.graphics.printf("Pause", 0,HEIGHT/2-100,WIDTH, "center")
 
 	gui.core.draw()
 end
 
 function st:update()
 	love.graphics.setFont(Font[30])
-	gui.group{grow="down", pos = {WIDTH/2-100, HEIGHT/2+100}, size={200,40}, spacing=5, function()
-		if self.nextLevel then
-			if gui.Button{text = "Next level"} then
-				GS.transition(State.game, 1, self.nextLevel)
-			end
-		else
-			gui.Label{text = "That's it. You made it!",align="center",pos={nil,-40}}
-			gui.Label{text = "",align="center",size={nil,40}}
+	gui.group{grow="right", pos = {WIDTH/2-310, HEIGHT/2+100}, size={200,40}, spacing=5, function()
+		if gui.Button{text = "Resume"} then
+			GS.pop()
+		end
+
+		if gui.Button{text = "Restart"} then
+			GS.pop()
+			Timer.after(0, function() GS.switch(State.game, State.game.level) end)
 		end
 
 		if gui.Button{text = "Quit"} then
-			GS.transition(State.menu, .5)
+			GS.pop()
+			Timer.after(0, function() GS.transition(State.menu, .5) end)
 		end
 	end}
 
@@ -49,7 +49,12 @@ function st:update()
 	if hot and hot ~= hot_last then
 		selectSound:play()
 	end
+end
 
+function st:keypressed(key)
+	if key == 'escape' then
+		GS.pop()
+	end
 end
 
 return st

@@ -50,9 +50,6 @@ update = function(self)
 		local control_before,val = table.findmax(c, 3)
 		if val == 0 then control_before = -1 end
 
-		if self.id == 2 and val == 0 then
-			print(control_before,self.against[control_before], val)
-		end
 		c[self.id] = math.min(c[self.id] + (self.against[control_before] or 1) + 1,
 			self.maxval or 2)
 		for i = 1,3 do
@@ -63,8 +60,8 @@ update = function(self)
 		if control_before ~= control_after then
 			Signal.emit("control-change", control_before, control_after)
 			gained = true
-			if control_before ~= 3 and control_before ~= -1 and not played then
-				Signal.emit("play-screech")
+			if not played then
+				Signal.emit("play-screech", control_before)
 				played = true
 			end
 		end

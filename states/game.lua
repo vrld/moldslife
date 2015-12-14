@@ -3,7 +3,6 @@ local st = {}
 local controlSeedRatio = 25
 local addSeedEveryNIterations = 100
 local mapShader
-local tick
 
 function st:init()
 	mapShader = love.graphics.newShader[[
@@ -50,27 +49,22 @@ function st:init()
 
 	local grains = {}
 	for i = 1,5 do
-		local l = math.floor(44100 * love.math.random() * .08 + .1)
+		local l = math.floor(44100 * (love.math.random() * .04 + .02))
 		local sd = love.sound.newSoundData(l, 44100, 16, 1)
 		local r = 0
 		for i = 0,l-1 do
-			if love.math.random() > .5 then
-				r = math.max(-1,math.min(1, r + love.math.random()))
+			if love.math.random() > .9 then
+				r = math.max(-1,math.min(1, r + (2*love.math.random()-1)))
 			end
-			sd:setSample(i, r*.1*(1-(2*i/l-1)^2))
+			sd:setSample(i, r*.005*(1-(2*i/l-1)^2))
 		end
 		grains[#grains+1] = sd
 	end
-	tick = love.audio.newSource(grains)
+	local tick = love.audio.newSource(grains)
 
-	Signal.register("play-tick", function()
-		tick:play()
-	end)
-
-
-	local grains = {}
+	grains = {}
 	for i = 1,10 do
-		local l = math.floor(44100 * love.math.random() * .08 + .1)
+		local l = math.floor(44100 * (love.math.random() * .08 + .1))
 		local sd = love.sound.newSoundData(l, 44100, 16, 1)
 		local f = love.math.random() * 220 + 110
 		local s = 0
@@ -83,10 +77,16 @@ function st:init()
 		end
 		grains[#grains+1] = sd
 	end
-	screech = love.audio.newSource(grains)
+	local screech = love.audio.newSource(grains)
 
-	Signal.register("play-screech", function()
-		screech:play()
+	Signal.register("play-tick", function()
+		tick:play()
+	end)
+
+	Signal.register("play-screech", function(l)
+		if l > 0 and l <= #self.level.molds then
+			screech:play()
+		end
 	end)
 end
 
@@ -109,10 +109,11 @@ function st:enter(_, level)
 		self.timer.script(function(wait)
 			wait(0)
 			while true do
+				local cs = table.sum(self.level.control, #self.level.molds)
 				mold:update()
 				self.level.map_img:refresh()
-				local s = #mold / ms
-				local w = .1 - s*s * .08
+				local s = .5 * (#mold / ms) + .5 * (self.level.control[i] / cs)
+				local w = .1 - s*s * .09
 				wait(w)
 			end
 		end)
@@ -142,9 +143,9 @@ function st:draw()
 		love.graphics.setBlendMode('alpha')
 
 		for i,p in ipairs(pos) do
-			local s = i/#pos * 255
-			love.graphics.setColor(s,s,s)
-			love.graphics.circle('line', p[1], p[2], 10)
+			local s = i/#pos * 200 + 55
+			love.graphics.setColor(50*1.8,92*1.9,82*1.8,s)
+			love.graphics.draw(Image.arrow, p[1], p[2], p.r, p.s,p.s, Image.arrow:getWidth(), 0)
 		end
 
 		self.level:drawHook()
@@ -161,6 +162,10 @@ function st:update(dt)
 	if self.level.winningConditionSatisfied(self.level) then
 		GS.switch(State.won)
 	end
+	for _,p in ipairs(pos) do
+		p.r = (p.r + dt * p.f) % (2*math.pi)
+		p.s = math.sin(p.r) * .1 + .4
+	end
 end
 
 function st:mousereleased(mx,my,btn)
@@ -171,24 +176,27 @@ function st:mousereleased(mx,my,btn)
 		end)
 		while #self.level.molds[1].kde >= 5 do
 			table.remove(self.level.molds[1].kde, 1)
+			table.remove(pos, 1)
 		end
 	else
 		self.level.molds[1].kde:clear()
 		pos = {}
 	end
 
-	pos[#pos+1] = {mx,my}
+	pos[#pos+1] = {mx,my,r=love.math.random() * 2 * math.pi,s=.3,f=love.math.random()*.5+1}
 	while #pos > #self.level.molds[1].kde do
 		table.remove(pos, 1)
 	end
 end
 
 function st:keypressed(key)
-	if key == ' ' then
+	if key == 'escape' then
+		GS.push(State.pause)
+	--elseif key == 'r' then
+	--	local id = self.level.molds[1].kde:render()
+	--	id:encode("foo.png")
+	else
 		st:mousereleased(love.mouse.getX(), love.mouse.getY(), 'r')
-	elseif key == 'r' then
-		local id = self.level.molds[1].kde:render()
-		id:encode("foo.png")
 	end
 end
 

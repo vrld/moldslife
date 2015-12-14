@@ -44,9 +44,9 @@ nextLevel = function()
 end,
 
 drawHook = function(self)
-	love.graphics.setColor(240,240,100)
 	local g = self.goals[#self.goals]
-	love.graphics.circle('line', g.x, g.y, 5)
+	love.graphics.setColor(200,30,20)
+	love.graphics.draw(Image.arrow, g.x,g.y, 1.5, .8,.8, Image.arrow:getWidth(), 0)
 
 	local cs = table.sum(self.control)
 	love.graphics.setColor(self.molds[1].color)

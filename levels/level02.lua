@@ -4,9 +4,11 @@ onLoad = function(self, timer)
 	timer.script(function(wait)
 		self.message = "Another fish! And another!"
 		wait(5)
-		self.message = "An eye for an eye and two for two"
-		wait(5)
 		self.message = "Is it Christmas already?"
+		wait(3)
+		self.message = "An eye for an eye"
+		wait(3)
+		self.message = "And two are better than one"
 		wait(5)
 		self.message = ""
 	end)

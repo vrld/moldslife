@@ -4,3 +4,6 @@
 [submodule "shine"]
 	path = shine
 	url = https://github.com/vrld/shine
+[submodule "Quickie"]
+	path = Quickie
+	url = https://github.com/vrld/Quickie
